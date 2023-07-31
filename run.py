@@ -74,6 +74,38 @@ def copy_block(source_file, target_file, block_name):
     with open(target_file, 'w') as target:
         json.dump({block_name: block_to_copy}, target, indent=4)
 
+def calculate_points(position_str):
+    position = int(position_str)
+    points_mapping = {
+        1: 50,
+        2: 40,
+        3: 32,
+        4: 24,
+        5: 16,
+    }
+    return points_mapping.get(position, 8)
+
+def get_standings(data):
+    standings_table = Table(title="Eliminations Standings")
+    standings_table.add_column("Player Name", style="cyan", justify="right")
+    standings_table.add_column("Place", style="magenta")
+    standings_table.add_column("Goals", style="yellow")
+    standings_table.add_column("Goals In", style="yellow")
+    standings_table.add_column("Points", style="green")
+
+    eliminations = data.get("eliminations", [])
+    for elimination in eliminations:
+        standings = elimination.get("standings", [])
+        for player_data in standings:
+            player_name = player_data.get("name", "Player Name Unknown")
+            place_str = str(player_data.get("stats").get("place", "Place Unknown"))
+            goals = str(player_data.get("stats").get("goals", "Goals Unknown"))
+            goals_in = str(player_data.get("stats").get("goals_in", "Goals In Unknown"))
+            points = str(calculate_points(place_str))  # Convert points to a string
+            standings_table.add_row(player_name, place_str, goals, goals_in, points)
+
+    return standings_table
+
 def main():
     MAIN_FOLDER = os.path.dirname(__file__)
     KICKER_FOLDER = os.path.join(MAIN_FOLDER, 'kicker')
@@ -122,6 +154,11 @@ def main():
                 current_match = Match(team1, team2, sets_list, results)
                 current_match.print_match_results()
             print()
+
+            # Get and display standings table
+            standings_table = get_standings(data)
+            console = Console()
+            console.print(standings_table)
 
 if __name__ == "__main__":
     main()

@@ -2,56 +2,58 @@ import json
 import os
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
+from rich.panel import Panel
+
+class Match:
+    def __init__(self, team1, team2, sets_list, results):
+        self.team1 = team1 or 'Team 1 Unknown'
+        self.team2 = team2 or 'Team 2 Unknown'
+        self.sets_list = sets_list
+        self.results = results
+        
+    def get_match_winner(self, team1_score, team2_score):
+        if team1_score > team2_score:
+            return self.team1
+        elif team1_score < team2_score:
+            return self.team2
+        else:
+            return "Tie"
+
+    def print_match_results(self):
+        print('''
+=========================================================================================================
+              ''')
+        table = Table(title=f"Match Results - {self.team1} vs. {self.team2}", show_header=False, border_style="bright_black")
+        table.add_column("Team 1", justify="right", style="cyan")
+        table.add_column("Score", style="cyan", justify="center")
+        table.add_column("Team 2", justify="left", style="cyan")
+        table.add_column("Winner", style="magenta", no_wrap=True)
+
+        for set_info in self.sets_list:
+            scores = set_info.get('scores', 'Scores Unknown')
+            team1_score, team2_score = scores
+            winner = self.get_match_winner(team1_score, team2_score)
+
+            table.add_row(self.team1, Text(f'{team1_score}-{team2_score}', style="bold"), self.team2, winner)
+
+        # Add a separator between sets and overall result
+        table.add_row("", "", "", "")
+
+        # Add a row to display the overall match result for team1 and team2 with row highlighting
+        team1_result, team2_result = self.results
+        overall_result = f'{team1_result}-{team2_result}'
+        overall_winner = self.get_match_winner(team1_result, team2_result)
+        overall_result_row = [Text(self.team1, style="bold"), Text(f'Match result: {overall_result}', style="bold"), Text(self.team2, style="bold"), Text(f'Overall Winner: {overall_winner}', style="bold")]
+        table.add_row(*overall_result_row, style="yellow")
+
+        console = Console()
+        console.print(table)
 
 def load_json_data(file_path):
     with open(file_path, "r") as json_file:
         return json.load(json_file)
 
-def print_scores(file_name, matches_data):
-    console = Console()
-
-    for match in matches_data:
-        table = Table(title=f"Match Results - {file_name}")
-        table.add_column("Team 1", justify="right", style="cyan")
-        table.add_column("Score", style="cyan")
-        table.add_column("Team 2", justify="right", style="cyan")
-        table.add_column("Winner", style="magenta", no_wrap=True)
-
-        sets_list = match.get('disciplines', [])[0].get('sets', [])
-        team1 = match['team1'].get('name', 'Team 1 Unknown')
-        team2 = match['team2'].get('name', 'Team 2 Unknown')
-        results = match.get('result', 'Results Unknown')
-
-        for set_info in sets_list:
-            scores = set_info.get('scores', 'Scores Unknown')
-            team1_score, team2_score = scores
-
-            # Determine the winner for the current set
-            if team1_score > team2_score:
-                winner = team1
-            elif team1_score < team2_score:
-                winner = team2
-            else:
-                winner = "Tie"
-
-            table.add_row(f'{team1}', f'{team1_score}-{team2_score}', f'{team2}', f'{winner}')
-
-        # Add a row to display the overall match result for team1 and team2
-        team1_result, team2_result = results
-        if team1_result > team2_result:
-            overall_result = f'{team1_result}-{team2_result}'
-            overall_winner = team1
-        elif team1_result < team2_result:
-            overall_result = f'{team1_result}-{team2_result}'
-            overall_winner = team2
-        else:
-            overall_result = 'Tie'
-            overall_winner = 'Tie'
-        
-        table.add_row(f'{team1}', f'Match result: {overall_result}', f'{team2}', f'Overall Winner: {overall_winner}')
-
-        console.print(table)
-        
 def prettify_json(input_file_path, output_file_path):
     with open(input_file_path, 'r') as json_file:
         json_object = json.load(json_file)
@@ -66,7 +68,7 @@ def copy_block(source_file, target_file, block_name):
     if block_name in source_data:
         block_to_copy = source_data[block_name]
     else:
-        print(f"The block '{block_name}' does not exist in the source file.")
+        print(Panel(f"The block '{block_name}' does not exist in the source file."))
         return
 
     with open(target_file, 'w') as target:
@@ -86,8 +88,10 @@ def main():
         if os.path.isfile(input_file_path) and not os.path.exists(output_file_path):
             prettify_json(input_file_path, output_file_path)
             print(f'Refactored {file}')
+            print('===================================')
         elif os.path.exists(output_file_path):
             print(f"Skipping {file} as the prettified version already exists.")
+            print('===================================')
 
     # Iterate through PRETTY_FOLDER and copy 'eliminations' block to SCRAPED_FOLDER
     for filename in os.listdir(PRETTY_FOLDER):
@@ -97,13 +101,26 @@ def main():
             if not os.path.exists(target_file):
                 copy_block(source_file, target_file, 'eliminations')
                 print(f'Scraped eliminations from {filename}.')
+                print('===================================')
             else:
                 print(f'Skipping scraping for {filename} as the file already exists.')
+                print('===================================')
 
             # Load data and print scores for the scraped file
             data = load_json_data(target_file)
-            matches = data.get("eliminations", [])[0].get("levels", [])[0].get("matches", [])
-            print_scores(filename, matches)
+            matches = []
+            eliminations = data.get("eliminations", [])
+            if eliminations:
+                levels = eliminations[0].get("levels", [])
+                for level in levels:
+                    matches.extend(level.get("matches", []))
+            for match in matches:
+                team1 = match['team1'].get('name') if match['team1'] else None
+                team2 = match['team2'].get('name') if match['team2'] else None
+                sets_list = match.get('disciplines', [])[0].get('sets', [])
+                results = match.get('result', 'Results Unknown')
+                current_match = Match(team1, team2, sets_list, results)
+                current_match.print_match_results()
             print()
 
 if __name__ == "__main__":

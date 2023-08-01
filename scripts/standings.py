@@ -34,10 +34,8 @@ class Match:
 
             table.add_row(self.team1, Text(f'{team1_score}-{team2_score}', style="bold"), self.team2, winner)
 
-        # Add a separator between sets and overall result
         table.add_row("", "", "", "")
 
-        # Add a row to display the overall match result for team1 and team2 with row highlighting
         team1_result, team2_result = self.results
         overall_result = f'{team1_result}-{team2_result}'
         overall_winner = self.get_match_winner(team1_result, team2_result)

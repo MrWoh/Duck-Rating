@@ -18,8 +18,7 @@ class Match:
             return "Tie"
 
     def print_match_results(self):
-        print('''
-=========================================================================================================
+        print('''=========================================================================================================
               ''')
         table = Table(title=f"Match Results - {self.team1} vs. {self.team2}", show_header=False, border_style="bright_black")
         table.add_column("Team 1", justify="right", style="cyan")
@@ -72,7 +71,7 @@ def get_standings(data):
             place_str = str(player_data.get("stats").get("place", "Place Unknown"))
             goals = str(player_data.get("stats").get("goals", "Goals Unknown"))
             goals_in = str(player_data.get("stats").get("goals_in", "Goals In Unknown"))
-            points = str(calculate_points(place_str))  # Convert points to a string
+            points = str(calculate_points(place_str))
             standings_table.add_row(player_name, place_str, goals, goals_in, points)
 
     return standings_table

@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from scripts.other import get_tournament_date, get_category
+from scripts.other import get_tournament_date, get_category, validate_name, associate_emails_to_names_in_csv, email_name_mapping
 from scripts.standings import calculate_points
 from scripts.scraper import load_json_data
 
@@ -21,6 +21,7 @@ def get_standings_dataframe(data):
                 standings = elimination.get("standings", [])
                 for player_data in standings:
                     player_name = player_data.get("name", "Player Name Unknown")
+                    player_name = validate_name(player_name)
                     place_str = str(player_data.get("stats").get("place", "Place Unknown"))
                     points = calculate_points(place_str)
 
@@ -38,6 +39,11 @@ def get_standings_dataframe(data):
 
     standings_df["Category"] = standings_df["Total"].apply(get_category)
 
+    standings_df["Email"] = ""
+    standings_df["ID"] = ""
+
+    standings_df = standings_df[['ID', 'Email', 'Category', 'Player Name', 'Total'] + [col for col in standings_df.columns if col not in ['ID', 'Email', 'Category', 'Player Name', 'Total']]]
+
     csv_file_path = os.path.join(CSV_FOLDER + "/standings.csv")
     if os.path.exists(csv_file_path):
         existing_standings_df = pd.read_csv(csv_file_path, index_col=0)
@@ -47,11 +53,8 @@ def get_standings_dataframe(data):
         standings_df = existing_standings_df.reset_index()
 
     standings_df.to_csv(csv_file_path, index=False)
+    associate_emails_to_names_in_csv(email_name_mapping)
     print('Data exported')
     print('===================================')
 
     return standings_df
-
-
-
-

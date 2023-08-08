@@ -1,3 +1,4 @@
+#!/usr/bin/env -S poetry run python
 from rich.console import Console
 import os
 

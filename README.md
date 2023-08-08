@@ -4,6 +4,7 @@ Tool written in Python to calculate ratings from exported JSON tournament files.
 
 - [Python](https://www.python.org/downloads/source/)
 - [Pyenv](https://github.com/pyenv/pyenv)
+- [Poetry](https://python-poetry.org/docs/#installation)
 
 #### Purpose
 
@@ -13,7 +14,7 @@ Create ratings from JSON files exported from KickerTool, Lets'Foos and Fast tour
 
 1. Install requirements:
 ```bash
-pip install -r requirements.txt
+./install.sh
 ```
 
 2. Directory Tree
@@ -39,7 +40,6 @@ pip install -r requirements.txt
 ```
 
 #### To Do
-- Bash script for installing requirements.
 - ELO point system. Point value determined by winner/loser position.
 - Separate ELO point and Local point system retaings.
 - Postgres integrasion.

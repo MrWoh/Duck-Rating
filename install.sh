@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 SETUP_NAME="Dependencies setup script"
-SETUP_TITLE="Setup"
+SETUP_TITLE="# Setup"
 SHELL_RCFILE=".dr_$(basename "$SHELL")rc"
 SHELL_PROFILE=".$(basename "$SHELL")_profile"
 PY3_REQ_VER=$(cat "$SCRIPT_DIR"/.python-version)
@@ -101,7 +101,7 @@ DETECT_OS(){
 
 LOAD_CONFIG(){
   [ ! -f ~/"$SHELL_RCFILE" ] && (umask 022; touch "$HOME/$SHELL_RCFILE");
-  echo "###$SETUP_TITLE" >"$HOME/$SHELL_RCFILE"
+  echo "$SETUP_TITLE" >"$HOME/$SHELL_RCFILE"
   ! grep -q "$SHELL_RCFILE" "$HOME/.$(basename "$SHELL")rc" && \
   echo -e "source \$HOME/$SHELL_RCFILE\n" >>"$HOME/.$(basename "$SHELL")rc"
   # shellcheck source=/dev/null
@@ -134,7 +134,7 @@ DISPLAY_INFO(){
 	done
   printf -- '=%.0s' $(seq 1 ${COLUMNS_LIMIT}); printf '\n'
   echo -e "\n  Execute below shown command to load configuration settings in \
-  the current shell window\n\n    $ ${BOLD}source ~/$SHELL_RCFILE${NORM}\n"
+  the current shell window\n\n    $ ${BOLD}${RED}source ~/$SHELL_RCFILE${NORM}\n"
 }
 
 install_pyenv(){
@@ -155,7 +155,6 @@ install_python(){
   HEADER3 "Is PYTHON installed: $INSTALLED_PYTHON"
   pyenv versions
   PY3_CUR_VER=$(python3 --version 2>/dev/null | cut -d ' ' -f 2; if [ "${PIPESTATUS[0]}" != 0 ]; then echo "0.0.0"; fi)
-
   if VERSION_COMPARE "${PY3_CUR_VER}" "${PY3_REQ_VER}";
     then echo "Python versions match: ${PY3_CUR_VER} = ${PY3_REQ_VER}";
     else echo "Python versions mis-match: ${PY3_CUR_VER} <> ${PY3_REQ_VER}"; pyenv install "${PY3_REQ_VER}";
@@ -178,7 +177,6 @@ install_poetry(){
   poetry self add poetry-plugin-pyenv@latest poetry-dotenv-plugin@latest poethepoet[poetry_plugin]@latest
 
   HEADER2 "Running Poetry installation"
-  source .venv/bin/activate
   poetry install
 }
 

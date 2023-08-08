@@ -7,7 +7,7 @@ Tool written in Python to calculate ratings from exported JSON tournament files.
 
 #### Purpose
 
-Create ratings from JSON files exported from KickerTool and Lets'Foos tournament programs.
+Create ratings from JSON files exported from KickerTool, Lets'Foos and Fast tournament programs.
 
 #### How do I get set up?
 
@@ -16,7 +16,7 @@ Create ratings from JSON files exported from KickerTool and Lets'Foos tournament
 pip install -r requirements.txt
 ```
 
-2. Edit default values *(Optional)*:
+2. Directory Tree
 ```bash
     Duck Rating
     ├── files

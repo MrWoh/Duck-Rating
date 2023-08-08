@@ -1,0 +1,25 @@
+[tool.poetry]
+  name = "Duck Rating"
+  readme = "README.md"
+  version = "1.1"
+  description = "Tool written in Python to calculate ratings from exported JSON tournament files."
+  authors = ["Paulius Verseckas"]
+
+  [tool.poetry.dependencies]
+    pandas = "==2.0.1"
+    python = "==3.10.8"
+    rich = "==12.6.0"
+
+[tool.ward]
+  path = ["python"]
+  test-output-style = "dots-module"
+  progress-style = ["bar"]
+  show-slowest = 10
+
+[tool.coverage]
+  [tool.coverage.report]
+    fail_under = 80
+    show_missing = true
+    skip_covered = false
+    skip_empty = true
+

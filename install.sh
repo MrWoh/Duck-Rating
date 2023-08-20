@@ -177,6 +177,7 @@ install_poetry(){
   poetry self add poetry-plugin-pyenv@latest poetry-dotenv-plugin@latest poethepoet[poetry_plugin]@latest
 
   HEADER2 "Running Poetry installation"
+  source .venv/bin/activate
   poetry install
 }
 
